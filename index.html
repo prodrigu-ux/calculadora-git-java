@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Restringida</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .contenedor {
+            background: #ffffff;
+            padding: 24px 32px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            text-align: center;
+            color: #222;
+        }
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            margin-top: 18px;
+            background-color: #0056b3;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+        #salida {
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 4px;
+            background-color: #eef2f7;
+            font-weight: bold;
+            text-align: center;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <h1>Calculadora Matemática</h1>
+        <form id="formCalculadora">
+            <label for="num1">Primer número [-99999 a 99999]:</label>
+            <input type="number" id="num1" name="num1" min="-99999" max="99999" step="1" required>
+
+            <label for="operacion">Operación permitida:</label>
+            <select id="operacion" name="operacion" required>
+                <option value="suma">Suma (+)</option>
+                <option value="resta">Resta (-)</option>
+                <option value="multiplicacion">Multiplicación (*)</option>
+                <option value="potencia">Potencia (^)</option>
+            </select>
+
+            <label for="num2">Segundo número [-99999 a 99999]:</label>
+            <input type="number" id="num2" name="num2" min="-99999" max="99999" step="1" required>
+
+            <button type="submit">Calcular</button>
+        </form>
+        <div id="salida">Introduce dos números enteros y pulsa Calcular.</div>
+    </div>
+
+    <script>
+        document.getElementById("formCalculadora").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const salida = document.getElementById("salida");
+            const raw1 = document.getElementById("num1").value.trim();
+            const raw2 = document.getElementById("num2").value.trim();
+            const operacion = document.getElementById("operacion").value;
+
+            const n1 = Number(raw1);
+            const n2 = Number(raw2);
+
+            if (!Number.isInteger(n1) || !Number.isInteger(n2) || n1 < -99999 || n1 > 99999 || n2 < -99999 || n2 > 99999) {
+                salida.textContent = "Error: Solo se permiten números enteros entre -99999 y 99999.";
+                return;
+            }
+
+            const baseUrl = window.location.protocol === "file:" ? "http://localhost:8080" : "";
+            const url = `${baseUrl}/calcular?num1=${encodeURIComponent(n1)}&num2=${encodeURIComponent(n2)}&operacion=${encodeURIComponent(operacion)}`;
+
+            try {
+                const respuesta = await fetch(url);
+                const datos = await respuesta.json();
+                if (respuesta.ok) {
+                    salida.textContent = "Resultado: " + datos.resultado;
+                } else {
+                    salida.textContent = "Error: " + datos.error;
+                }
+            } catch (error) {
+                salida.textContent = "Error de conexión con el servidor Java (ejecuta Server).";
+            }
+        });
+    </script>
+</body>
+</html>
