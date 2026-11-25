@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora Restringida</title>
+    <!-- Estilos de presentación del formulario de cálculo -->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,8 +67,10 @@
     </style>
 </head>
 <body>
+    <!-- Contenedor principal de la aplicación web -->
     <div class="contenedor">
         <h1>Calculadora Matemática</h1>
+        <!-- Formulario limitado a enteros de 5 dígitos y 4 operaciones -->
         <form id="formCalculadora">
             <label for="num1">Primer número [-99999 a 99999]:</label>
             <input type="number" id="num1" name="num1" min="-99999" max="99999" step="1" required>
@@ -85,9 +88,11 @@
 
             <button type="submit">Calcular</button>
         </form>
+        <!-- Bloque de salida donde se muestra el resultado o error -->
         <div id="salida">Introduce dos números enteros y pulsa Calcular.</div>
     </div>
 
+    <!-- Validación en cliente y comunicación asíncrona con el backend Java -->
     <script>
         document.getElementById("formCalculadora").addEventListener("submit", async function (e) {
             e.preventDefault();
@@ -99,11 +104,13 @@
             const n1 = Number(raw1);
             const n2 = Number(raw2);
 
+            // Verifica que ambos números sean enteros dentro de [-99999, 99999]
             if (!Number.isInteger(n1) || !Number.isInteger(n2) || n1 < -99999 || n1 > 99999 || n2 < -99999 || n2 > 99999) {
                 salida.textContent = "Error: Solo se permiten números enteros entre -99999 y 99999.";
                 return;
             }
 
+            // Construye la petición GET hacia el servidor Java
             const baseUrl = window.location.protocol === "file:" ? "http://localhost:8080" : "";
             const url = `${baseUrl}/calcular?num1=${encodeURIComponent(n1)}&num2=${encodeURIComponent(n2)}&operacion=${encodeURIComponent(operacion)}`;
 

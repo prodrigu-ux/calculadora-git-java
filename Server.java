@@ -11,14 +11,21 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Servidor HTTP en Java que resuelve exclusivamente operaciones de suma,
+ * resta, multiplicación y potencia con enteros de hasta 5 dígitos.
+ */
 public class Server {
 
+    // Rango permitido para los números enteros de entrada [-99999...99999]
     private static final int MIN_VALOR = -99999;
     private static final int MAX_VALOR = 99999;
 
     public static void main(String[] args) throws IOException {
+        // Inicia el servidor HTTP en el puerto local 8080
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
+        // Endpoint raíz: devuelve la interfaz HTML al navegador
         server.createContext("/", exchange -> {
             if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
                 enviarRespuesta(exchange, 405, "text/plain; charset=UTF-8", "Metodo no permitido");
@@ -37,6 +44,7 @@ public class Server {
             }
         });
 
+        // Endpoint de cálculo: valida entradas y ejecuta la operación matemática
         server.createContext("/calcular", exchange -> {
             exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
             if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
@@ -52,6 +60,7 @@ public class Server {
             int num1;
             int num2;
 
+            // Validación de que ambos operandos sean números enteros
             try {
                 if (rawNum1 == null || rawNum2 == null || rawNum1.isBlank() || rawNum2.isBlank()) {
                     throw new IllegalArgumentException("Ambos numeros son obligatorios.");
@@ -68,6 +77,7 @@ public class Server {
                 return;
             }
 
+            // Validación del rango permitido de 5 dígitos [-99999...99999]
             if (num1 < MIN_VALOR || num1 > MAX_VALOR || num2 < MIN_VALOR || num2 > MAX_VALOR) {
                 enviarRespuesta(exchange, 400, "application/json; charset=UTF-8",
                         "{\"error\":\"Los numeros deben ser enteros de hasta 5 digitos [-99999...99999].\"}");
@@ -80,6 +90,7 @@ public class Server {
                 return;
             }
 
+            // Selección exclusiva de las cuatro operaciones permitidas
             String resultado;
             switch (operacion) {
                 case "suma":
@@ -120,6 +131,7 @@ public class Server {
         System.out.println("Servidor iniciado en http://localhost:8080");
     }
 
+    // Extrae los parámetros de la cadena de consulta (query string) de la URL
     private static Map<String, String> parsearParametros(String query) {
         Map<String, String> mapa = new HashMap<>();
         if (query == null || query.isEmpty()) {
@@ -135,6 +147,7 @@ public class Server {
         return mapa;
     }
 
+    // Envía la respuesta HTTP con su código de estado, tipo de contenido y cuerpo
     private static void enviarRespuesta(HttpExchange exchange, int codigo, String contentType, String cuerpo) throws IOException {
         byte[] bytes = cuerpo.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", contentType);
